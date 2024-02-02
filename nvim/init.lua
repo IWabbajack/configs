@@ -1,7 +1,5 @@
-
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
-
+vim.g.mapleader = ','
+vim.g.maplocalleader = ','
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
@@ -73,6 +71,23 @@ require('lazy').setup({
     dependencies = {
       'nvim-treesitter/nvim-treesitter-textobjects',
     },
+    run=function()
+      require('nvim-treesitter.install').update({ with_sync = true })
+    end,
+    config = function()
+      --  Add support for our Ada parser
+      local parsers = require "nvim-treesitter.parsers"
+      local parser_config = parsers.get_parser_configs()
+      parser_config.ada = {
+        install_info = {
+          url = "https://github.com/briot/tree-sitter-ada",
+          files = {"src/parser.c"},
+          generate_requires_npm = false,
+          requires_generate_from_grammar = false,
+        },
+        filetype = "ada",
+      }
+    end,
     build = ':TSUpdate',
   },
 
@@ -96,6 +111,10 @@ require('lazy').setup({
       'hrsh7th/cmp-path',
     },
   },
+
+  {
+    'github/copilot.vim'
+  }
 })
 
 -- ##### Configure Telescope #####
@@ -183,7 +202,7 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 vim.defer_fn(function()
   require'nvim-treesitter.configs'.setup {
     -- A list of parser names, or "all" (the five listed parsers should always be installed)
-    ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "python" },
+    ensure_installed = { "ada", "bash", "c", "lua", "vim", "vimdoc", "query", "python" },
 
     -- Install parsers synchronously (only applied to `ensure_installed`)
     sync_install = false,
@@ -286,13 +305,78 @@ vim.defer_fn(function()
   }
 end, 0)
 
--- ##### Setup language servers #####
+-- ##### Setup language Servers (LSP) #####
 
 require('neodev').setup()
 
 local lspconfig = require('lspconfig')
-lspconfig.pyright.setup {}
+lspconfig.pyright.setup {
+  {
+    python = {
+      analysis = {
+        autoSearchPaths = "true",
+        diagnosticMode = "openFilesOnly",
+        useLibraryCodeForTypes = true,
+        typeCheckingMode = "strict",
+      }
+    }
+  }
+}
+-- lspconfig.jedi_language_server.setup({
+--   init_options = {
+--     codeAction = {
+--           nameExtractVariable = "jls_extract_var",
+--           nameExtractFunction = "jls_extract_def",
+--         },
+--         completion = {
+--           disableSnippets = false,
+--           resolveEagerly = false,
+--           ignorePatterns = {},
+--         },
+--         diagnostics = {
+--           enable = true,
+--           didOpen = true,
+--           didChange = true,
+--           didSave = true,
+--         },
+--         hover = {
+--           enable = true,
+--           disable = {
+--             class = { all = false, names = {}, fullNames = {} },
+--             ["function"] = { all = false, names = {}, fullNames = {} },
+--             instance = { all = false, names = {}, fullNames = {} },
+--             keyword = { all = false, names = {}, fullNames = {} },
+--             module = { all = false, names = {}, fullNames = {} },
+--             param = { all = false, names = {}, fullNames = {} },
+--             path = { all = false, names = {}, fullNames = {} },
+--             property = { all = false, names = {}, fullNames = {} },
+--             statement = { all = false, names = {}, fullNames = {} },
+--           },
+--         },
+--         jediSettings = {
+--           autoImportModules = {},
+--           caseInsensitiveCompletion = true,
+--           debug = false,
+--         },
+--         markupKindPreferred = "markdown",
+--         workspace = {
+--           extraPaths = { "/home/eduard/devbox/ouroboros/swint" },
+--           symbols = {
+--             ignoreFolders = { ".nox", ".tox", ".venv", "__pycache__", "venv" },
+--             maxSymbols = 20,
+--           },
+--         },
+--   }
+-- })
+
 lspconfig.lua_ls.setup {}
+lspconfig.als.setup {
+  settings = {
+    ada = {
+      projectFilte = "/home/eduard/devbox/css/appli/top/appli_agg.gpr"
+    }
+  }
+}
 
 -- Global mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
@@ -324,7 +408,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end, opts)
     vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
     vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
-    vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)
+    -- vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)
     vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
     vim.keymap.set('n', '<leader>f', function()
       vim.lsp.buf.format { async = true }
@@ -474,6 +558,8 @@ vim.opt.relativenumber = true
 
 vim.opt.swapfile = false
 vim.opt.backup = false
+vim.opt.backupcopy = "yes" 
+vim.opt.backupdir ="/tmp"
 vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.opt.undofile = true
 
@@ -516,3 +602,14 @@ vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 
 -- this replaces the word you were on
 vim.keymap.set("n", "<leader>rw", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+
+vim.opt.colorcolumn = "130"
+
+-- remove trainling white spaces
+-- TODO: can I get the list of languages from the LSP or Treesitter config?
+vim.api.nvim_exec([[
+  augroup trim_whitespace
+    autocmd!
+      autocmd FileType ada,c,cpp,java,php,python autocmd BufWritePre <buffer> %s/\s\+$//e
+    augroup end
+]],false)
