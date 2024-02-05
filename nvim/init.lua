@@ -20,6 +20,13 @@ require('lazy').setup({
   -- 'tpope/vim-fugitive',
   -- 'tpope/vim-rhubarb',
 
+
+  -- As the name implies, I don't wanna have neck pain
+  {
+    "shortcuts/no-neck-pain.nvim",
+    version = "*"
+  },
+
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
 
