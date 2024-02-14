@@ -17,9 +17,14 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
 
   -- Git related plugins
-  -- 'tpope/vim-fugitive',
-  -- 'tpope/vim-rhubarb',
-
+  'tpope/vim-fugitive',
+  'tpope/vim-rhubarb',
+  {
+  "sindrets/diffview.nvim",
+    dependencies = {
+      'nvim-tree/nvim-web-devicons'
+    }
+  },
 
   -- As the name implies, I don't wanna have neck pain
   {
@@ -69,6 +74,9 @@ require('lazy').setup({
           return vim.fn.executable 'make' == 1
         end,
       },
+
+      'nvim-lua/popup.nvim',
+      'nvim-telescope/telescope-media-files.nvim',
     },
   },
 
@@ -78,7 +86,7 @@ require('lazy').setup({
     dependencies = {
       'nvim-treesitter/nvim-treesitter-textobjects',
     },
-    run=function()
+    run = function()
       require('nvim-treesitter.install').update({ with_sync = true })
     end,
     config = function()
@@ -88,7 +96,7 @@ require('lazy').setup({
       parser_config.ada = {
         install_info = {
           url = "https://github.com/briot/tree-sitter-ada",
-          files = {"src/parser.c"},
+          files = { "src/parser.c" },
           generate_requires_npm = false,
           requires_generate_from_grammar = false,
         },
@@ -105,6 +113,24 @@ require('lazy').setup({
     }
   },
 
+  -- Copilot
+  { 
+    'github/copilot.vim',
+    lazy = false,
+   config = function()
+     -- Mapping tab is already used by NvChad
+     vim.g.copilot_no_tab_map = true;
+     vim.g.copilot_assume_mapped = true;
+     vim.g.copilot_tab_fallback = "";
+     -- The mapping is set to other key, see custom/lua/mappings
+     -- or run <leader>ch to see copilot mapping section
+   end
+  },
+  -- for pretty icons
+  {
+    "onsails/lspkind.nvim"
+  },
+
   {
     -- Autocompletion
     'hrsh7th/nvim-cmp',
@@ -118,13 +144,12 @@ require('lazy').setup({
       'hrsh7th/cmp-path',
     },
   },
-
-  {
-    'github/copilot.vim'
-  }
 })
 
 -- ##### Configure Telescope #####
+
+require('telescope').load_extension('media_files')
+
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
   defaults = {
@@ -134,6 +159,15 @@ require('telescope').setup {
         ['<C-d>'] = false,
       },
     },
+  },
+  extensions = {
+    media_files = {
+      -- filetypes whitelist
+      -- defaults to {"png", "jpg", "mp4", "webm", "pdf"}
+      filetypes = { "png", "webp", "jpg", "jpeg", "emf" },
+      -- find command (defaults to `fd`)
+      find_cmd = "rg"
+    }
   },
 }
 
@@ -207,7 +241,7 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 -- ##### Configure Tree-sitter #####
 
 vim.defer_fn(function()
-  require'nvim-treesitter.configs'.setup {
+  require 'nvim-treesitter.configs'.setup {
     -- A list of parser names, or "all" (the five listed parsers should always be installed)
     ensure_installed = { "ada", "bash", "c", "lua", "vim", "vimdoc", "query", "python" },
 
@@ -231,11 +265,11 @@ vim.defer_fn(function()
       -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
       -- the name of the parser)
       -- list of language that will be disabled
-     
+
       -- disable = { "c", "rust" },
-     
+
       -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
-      
+
       -- disable = function(lang, buf)
       --   local max_filesize = 100 * 1024 -- 100 KB
       --   local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
@@ -332,47 +366,47 @@ local lspconfig = require('lspconfig')
 lspconfig.jedi_language_server.setup({
   init_options = {
     codeAction = {
-          nameExtractVariable = "jls_extract_var",
-          nameExtractFunction = "jls_extract_def",
-        },
-        completion = {
-          disableSnippets = false,
-          resolveEagerly = false,
-          ignorePatterns = {},
-        },
-        diagnostics = {
-          enable = true,
-          didOpen = true,
-          didChange = true,
-          didSave = true,
-        },
-        hover = {
-          enable = true,
-          disable = {
-            class = { all = false, names = {}, fullNames = {} },
-            ["function"] = { all = false, names = {}, fullNames = {} },
-            instance = { all = false, names = {}, fullNames = {} },
-            keyword = { all = false, names = {}, fullNames = {} },
-            module = { all = false, names = {}, fullNames = {} },
-            param = { all = false, names = {}, fullNames = {} },
-            path = { all = false, names = {}, fullNames = {} },
-            property = { all = false, names = {}, fullNames = {} },
-            statement = { all = false, names = {}, fullNames = {} },
-          },
-        },
-        jediSettings = {
-          autoImportModules = {},
-          caseInsensitiveCompletion = true,
-          debug = false,
-        },
-        markupKindPreferred = "markdown",
-        workspace = {
-          extraPaths = { "/home/eduard/devbox/ouroboros/swint" },
-          symbols = {
-            ignoreFolders = { ".nox", ".tox", ".venv", "__pycache__", "venv" },
-            maxSymbols = 20,
-          },
-        },
+      nameExtractVariable = "jls_extract_var",
+      nameExtractFunction = "jls_extract_def",
+    },
+    completion = {
+      disableSnippets = false,
+      resolveEagerly = false,
+      ignorePatterns = {},
+    },
+    diagnostics = {
+      enable = true,
+      didOpen = true,
+      didChange = true,
+      didSave = true,
+    },
+    hover = {
+      enable = true,
+      disable = {
+        class = { all = false, names = {}, fullNames = {} },
+        ["function"] = { all = false, names = {}, fullNames = {} },
+        instance = { all = false, names = {}, fullNames = {} },
+        keyword = { all = false, names = {}, fullNames = {} },
+        module = { all = false, names = {}, fullNames = {} },
+        param = { all = false, names = {}, fullNames = {} },
+        path = { all = false, names = {}, fullNames = {} },
+        property = { all = false, names = {}, fullNames = {} },
+        statement = { all = false, names = {}, fullNames = {} },
+      },
+    },
+    jediSettings = {
+      autoImportModules = {},
+      caseInsensitiveCompletion = true,
+      debug = false,
+    },
+    markupKindPreferred = "markdown",
+    workspace = {
+      extraPaths = { "/home/eduard/devbox/ouroboros/swint" },
+      symbols = {
+        ignoreFolders = { ".nox", ".tox", ".venv", "__pycache__", "venv" },
+        maxSymbols = 20,
+      },
+    },
   }
 })
 
@@ -423,6 +457,11 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
+-- ##### Copilot #####
+vim.keymap.set('i', '<C-l>', function()
+  vim.fn.feedkeys(vim.fn['copilot#Accept'](), '')
+end)
+
 -- ##### Configure nvim-cmp #####
 -- See `:help cmp`
 local cmp = require 'cmp'
@@ -469,9 +508,10 @@ cmp.setup {
     end, { 'i', 's' }),
   },
   sources = {
-    { name = 'nvim_lsp' },
-    { name = 'luasnip' },
-    { name = 'path' },
+    { name = 'copilot', group_index = 2 },
+    { name = 'nvim_lsp', group_index = 2 },
+    { name = 'luasnip', group_index = 2 },
+    { name = 'path', group_index = 2 },
   },
 }
 
@@ -490,7 +530,7 @@ vim.keymap.set("n", "<C-s>", function() ui.nav_file(4) end)
 -- ##### Setting options #####
 
 -- Set highlight on search
-vim.o.hlsearch = true 
+vim.o.hlsearch = true
 vim.opt.incsearch = true
 
 -- Make line numbers default
@@ -565,8 +605,8 @@ vim.opt.relativenumber = true
 
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.backupcopy = "yes" 
-vim.opt.backupdir ="/tmp"
+vim.opt.backupcopy = "yes"
+vim.opt.backupdir = "/tmp"
 vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.opt.undofile = true
 
@@ -586,10 +626,10 @@ vim.keymap.set("n", "N", "Nzzzv")
 -- greatest remap ever
 vim.keymap.set("x", "<leader>p", [["_dP]])
 -- next greatest remap ever : asbjornHaland
-vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
+vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
 vim.keymap.set("n", "<leader>Y", [["+Y]])
 
-vim.keymap.set({"n", "v"}, "<leader>d", [["_d]])
+vim.keymap.set({ "n", "v" }, "<leader>d", [["_d]])
 
 -- This is going to get me cancelled
 vim.keymap.set("i", "<C-c>", "<Esc>")
@@ -619,4 +659,26 @@ vim.api.nvim_exec([[
     autocmd!
       autocmd FileType ada,c,cpp,java,php,python autocmd BufWritePre <buffer> %s/\s\+$//e
     augroup end
-]],false)
+]], false)
+
+-- TODO: quick and dirty way to switch between specification and definition.
+-- Definitely needs some improvement
+vim.keymap.set("n", "<leader>gh", function()
+  local current_file = vim.api.nvim_buf_get_name(0)
+  local next_file = ""
+  local i, j = string.find(current_file, ".ads")
+  if i ~= j then
+    next_file = string.gsub(current_file, ".ads", ".adb")
+  else
+    next_file = string.gsub(current_file, ".adb", ".ads")
+  end
+  if next_file ~= "" then
+    vim.cmd('e ' .. next_file)
+  end
+end)
+
+-- Just a quick way to trigger NoNeckPain
+vim.keymap.set("n", "<leader>np", function()
+  vim.cmd('NoNeckPain')
+  vim.cmd('NoNeckPainResize 150')
+end)
