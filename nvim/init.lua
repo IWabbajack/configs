@@ -15,6 +15,8 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
+  -- For smooth scrolling
+  'karb94/neoscroll.nvim',
 
   -- Git related plugins
   'tpope/vim-fugitive',
@@ -175,6 +177,21 @@ require('lazy').setup({
       'hrsh7th/cmp-path',
     },
   },
+})
+
+-- ##### Smooth Scrolling #####
+require('neoscroll').setup({
+ -- All these keys will be mapped to their corresponding default scrolling animation
+ mappings = {'<C-u>', '<C-d>', '<C-b>', '<C-f>', '<C-y>', 'zt', 'zz', 'zb'},
+ hide_cursor = true,          -- Hide cursor while scrolling
+ stop_eof = true,             -- Stop at <EOF> when scrolling downwards
+ respect_scrolloff = false,   -- Stop scrolling when the cursor reaches the scrolloff margin of the file
+ cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
+ easing_function = "quintic",       -- Default easing function
+ pre_hook = nil,              -- Function to run before the scrolling animation starts
+ post_hook = nil,             -- Function to run after the scrolling animation ends
+ performance_mode = true,
+
 })
 
 -- ##### Configure Telescope #####
@@ -649,8 +666,8 @@ vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
 vim.keymap.set("n", "J", "mzJ`z")
-vim.keymap.set("n", "<C-d>", "<C-d>zz")
-vim.keymap.set("n", "<C-u>", "<C-u>zz")
+-- vim.keymap.set("n", "<C-d>", "<C-d>zz")
+-- vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
