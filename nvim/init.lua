@@ -15,8 +15,6 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
-  -- For smooth scrolling
-  'karb94/neoscroll.nvim',
 
   -- Git related plugins
   'tpope/vim-fugitive',
@@ -177,21 +175,11 @@ require('lazy').setup({
       'hrsh7th/cmp-path',
     },
   },
-})
 
--- ##### Smooth Scrolling #####
-local neoscroll = require('neoscroll')
-neoscroll.setup({
- -- All these keys will be mapped to their corresponding default scrolling animation
- mappings = {'<C-u>', '<C-d>', '<C-b>', '<C-f>', '<C-y>', 'zt', 'zz', 'zb', 'n', '<S-n>'},
- hide_cursor = true,          -- Hide cursor while scrolling
- stop_eof = true,             -- Stop at <EOF> when scrolling downwards
- respect_scrolloff = false,   -- Stop scrolling when the cursor reaches the scrolloff margin of the file
- cursor_scrolls_alone = false, -- The cursor will keep on scrolling even if the window cannot scroll further
- easing_function = "cubic",       -- Default easing function
- pre_hook = nil,              -- Function to run before the scrolling animation starts
- post_hook = nil,             -- Function to run after the scrolling animation ends
- performance_mode = false,
+  { 
+    'echasnovski/mini.indentscope',
+    version = false
+  },
 })
 
 -- ##### Configure Telescope #####
@@ -399,18 +387,19 @@ end, 0)
 require('neodev').setup()
 
 local lspconfig = require('lspconfig')
--- lspconfig.pyright.setup {
---   {
---     python = {
---       analysis = {
---         autoSearchPaths = "true",
---         diagnosticMode = "openFilesOnly",
---         useLibraryCodeForTypes = true,
---         typeCheckingMode = "strict",
---       }
---     }
---   }
--- }
+lspconfig.pyright.setup {
+  {
+    python = {
+      analysis = {
+        autoSearchPaths = "true",
+        diagnosticMode = "openFilesOnly",
+        useLibraryCodeForTypes = true,
+        typeCheckingMode = "strict",
+      }
+    }
+  }
+}
+
 lspconfig.jedi_language_server.setup({
   init_options = {
     codeAction = {
@@ -575,6 +564,12 @@ vim.keymap.set("n", "<C-t>", function() ui.nav_file(2) end)
 vim.keymap.set("n", "<C-n>", function() ui.nav_file(3) end)
 vim.keymap.set("n", "<C-s>", function() ui.nav_file(4) end)
 
+
+-- ##### indentscope #####
+-- To have pretty indent scopes highlights
+require('mini.indentscope').setup()
+
+
 -- ##### Setting options #####
 
 -- Set highlight on search
@@ -666,8 +661,8 @@ vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
 vim.keymap.set("n", "J", "mzJ`z")
--- vim.keymap.set("n", "<C-d>", "<C-d>zz")
--- vim.keymap.set("n", "<C-u>", "<C-u>zz")
+vim.keymap.set("n", "<C-d>", "<C-d>zz")
+vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
