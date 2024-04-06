@@ -15,9 +15,8 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
-  -- For smooth scrolling
-  'karb94/neoscroll.nvim',
-
+  -- Detect tabstop and shiftwidth automatically
+  'tpope/vim-sleuth',
   -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
@@ -33,9 +32,6 @@ require('lazy').setup({
     "shortcuts/no-neck-pain.nvim",
     version = "*"
   },
-
-  -- Detect tabstop and shiftwidth automatically
-  'tpope/vim-sleuth',
 
   {
     'neovim/nvim-lspconfig',
@@ -179,21 +175,6 @@ require('lazy').setup({
   },
 })
 
--- ##### Smooth Scrolling #####
-local neoscroll = require('neoscroll')
-neoscroll.setup({
- -- All these keys will be mapped to their corresponding default scrolling animation
- mappings = {'<C-u>', '<C-d>', '<C-b>', '<C-f>', '<C-y>', 'zt', 'zz', 'zb', 'n', '<S-n>'},
- hide_cursor = true,          -- Hide cursor while scrolling
- stop_eof = true,             -- Stop at <EOF> when scrolling downwards
- respect_scrolloff = false,   -- Stop scrolling when the cursor reaches the scrolloff margin of the file
- cursor_scrolls_alone = false, -- The cursor will keep on scrolling even if the window cannot scroll further
- easing_function = "cubic",       -- Default easing function
- pre_hook = nil,              -- Function to run before the scrolling animation starts
- post_hook = nil,             -- Function to run after the scrolling animation ends
- performance_mode = false,
-})
-
 -- ##### Configure Telescope #####
 
 require('telescope').load_extension('media_files')
@@ -291,7 +272,7 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 vim.defer_fn(function()
   require 'nvim-treesitter.configs'.setup {
     -- A list of parser names, or "all" (the five listed parsers should always be installed)
-    ensure_installed = { "ada", "bash", "c", "lua", "vim", "vimdoc", "query", "python" },
+    ensure_installed = { "ada", "bash", "c", "cpp", "lua", "vim", "vimdoc", "query", "python" },
 
     -- Install parsers synchronously (only applied to `ensure_installed`)
     sync_install = false,
@@ -466,6 +447,8 @@ lspconfig.als.setup {
     }
   }
 }
+
+lspconfig.clangd.setup {}
 
 -- Global mappings.
 -- See `:help vim.diagnostic.*` for documentation on any of the below functions
@@ -642,14 +625,14 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 vim.opt.nu = true
 vim.opt.relativenumber = true
 
--- vim.opt.tabstop = 4
--- vim.opt.softtabstop = 4
--- vim.opt.shiftwidth = 4
+-- vim.opt.tabstop = 2
+-- vim.opt.shiftwidth = 2
 -- vim.opt.expandtab = true
+-- vim.bo.softtabstop = 2
 
 -- vim.opt.smartindent = true
 
--- vim.opt.wrap = false
+vim.opt.wrap = false
 
 vim.opt.swapfile = false
 vim.opt.backup = false
