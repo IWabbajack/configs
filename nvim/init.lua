@@ -270,16 +270,16 @@ vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { des
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
-vim.keymap.set('n', '<leader>sG', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by [G]rep on Git Root' })
+vim.keymap.set('n', '<leader>gs', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by [G]rep on Git Root' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
 
--- ##### Configure Tree-sitter #####
+-- ##### Configure Treesitter #####
 
 vim.defer_fn(function()
   require 'nvim-treesitter.configs'.setup {
     -- A list of parser names, or "all" (the five listed parsers should always be installed)
-    ensure_installed = { "ada", "bash", "c", "lua", "vim", "vimdoc", "query", "python" },
+    ensure_installed = { "ada", "bash", "c", "cpp", "lua", "vim", "vimdoc", "query", "python" },
 
     -- Install parsers synchronously (only applied to `ensure_installed`)
     sync_install = false,
@@ -454,6 +454,12 @@ lspconfig.als.setup {
       projectFilte = "/home/eduard/devbox/css/appli/top/appli_agg.gpr"
     }
   }
+}
+
+lspconfig.clangd.setup {
+  cmd = { "clangd", "--background-index" },
+  filetypes = { "c", "cpp" },
+  root_dir = lspconfig.util.root_pattern("compile_commands.json", "compile_flags.txt", ".git"),
 }
 
 -- Global mappings.
@@ -637,14 +643,14 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 vim.opt.nu = true
 vim.opt.relativenumber = true
 
--- vim.opt.tabstop = 4
--- vim.opt.softtabstop = 4
--- vim.opt.shiftwidth = 4
--- vim.opt.expandtab = true
+vim.opt.tabstop = 2
+vim.opt.softtabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.expandtab = true
 
--- vim.opt.smartindent = true
+vim.opt.smartindent = true
 
--- vim.opt.wrap = false
+vim.opt.wrap = false
 
 vim.opt.swapfile = false
 vim.opt.backup = false
@@ -725,3 +731,12 @@ vim.keymap.set("n", "<leader>np", function()
   vim.cmd('NoNeckPain')
   vim.cmd('NoNeckPainResize 150')
 end)
+
+-- Auto wrap adoc 
+local group = vim.api.nvim_create_augroup('AutoWrapAdoc', { clear = true })
+
+vim.api.nvim_create_autocmd('BufEnter', {
+  pattern = { '*.adoc', '*.md' },
+  group = group,
+  command = 'setlocal linebreak wrap'
+})
